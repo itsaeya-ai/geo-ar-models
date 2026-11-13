@@ -7,19 +7,81 @@
     <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
     <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
     <script src="https://raw.githack.com/donmccurdy/aframe-extras/master/dist/aframe-extras.loaders.min.js"></script>
-    <link rel="stylesheet" href="./style.css" />
-    <script src="./script.js" defer></script>
+    <style>
+        body { margin: 0; overflow: hidden; font-family: sans-serif; }
+        .top-label {
+            position: fixed; top: 20px; left: 50%; transform: translateX(-50%);
+            background: rgba(0, 0, 0, 0.75); color: #fff; padding: 10px 18px;
+            border-radius: 14px; font-size: 15px; z-index: 9999; white-space: nowrap;
+        }
+        .bottom-bar {
+            position: fixed; bottom: 28px; left: 0; right: 0;
+            display: flex; justify-content: center; z-index: 9999;
+        }
+        #switch-btn {
+            border: 2px solid #fff; background: rgba(0, 0, 0, 0.8); color: #fff;
+            font-size: 16px; font-weight: 600; padding: 12px 26px;
+            border-radius: 30px; cursor: pointer;
+        }
+    </style>
 </head>
 
 <body>
-    <div id="status-badge" class="top-label">Загрузка модели...</div>
+    <div id="status-badge" class="top-label">Magnemite</div>
 
     <a-scene vr-mode-ui="enabled: false" embedded arjs="sourceType: webcam; debugUIEnabled: false;">
         <a-camera gps-camera="gpsMinDistance: 5;" rotation-reader></a-camera>
     </a-scene>
 
     <div class="bottom-bar">
-        <button id="switch-btn" type="button">🔄 Следующая модель</button>
+        <button id="switch-btn" type="button">🔄 Сменить модель</button>
     </div>
+
+    <script>
+        const MODELS = [
+            {
+                url: 'https://raw.githubusercontent.com/nicolocarpignoli/location-based-ar-tutorial/master/static-places/assets/magnemite/scene.gltf',
+                scale: '0.5 0.5 0.5',
+                rotation: '0 180 0',
+                label: 'Magnemite'
+            },
+            {
+                url: 'https://raw.githubusercontent.com/nicolocarpignoli/location-based-ar-tutorial/master/static-places/assets/articuno/scene.gltf',
+                scale: '0.2 0.2 0.2',
+                rotation: '0 180 0',
+                label: 'Articuno'
+            },
+            {
+                url: 'https://raw.githubusercontent.com/nicolocarpignoli/location-based-ar-tutorial/master/static-places/assets/dragonite/scene.gltf',
+                scale: '0.08 0.08 0.08',
+                rotation: '0 180 0',
+                label: 'Dragonite'
+            }
+        ];
+
+        let idx = 0;
+
+        function setModel(entity, item) {
+            entity.setAttribute('gltf-model', item.url);
+            entity.setAttribute('scale', item.scale);
+            entity.setAttribute('rotation', item.rotation);
+            document.getElementById('status-badge').textContent = item.label;
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            const scene = document.querySelector('a-scene');
+            const entity = document.createElement('a-entity');
+            entity.setAttribute('gps-entity-place', 'latitude: 51.135758; longitude: 71.431123;');
+            entity.setAttribute('animation-mixer', '');
+
+            setModel(entity, MODELS[idx]);
+            scene.appendChild(entity);
+
+            document.getElementById('switch-btn').addEventListener('click', () => {
+                idx = (idx + 1) % MODELS.length;
+                setModel(entity, MODELS[idx]);
+            });
+        });
+    </script>
 </body>
 </html>
